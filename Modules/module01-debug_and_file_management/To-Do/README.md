@@ -101,7 +101,7 @@ The values should continuously change because the Fake MCU generates new values 
 
 ---
 
-# Important Rule
+# Important Rules
 
 The application layer must not directly call:
 
@@ -117,6 +117,19 @@ The application layer must only use the interfaces provided by:
 sensor.c
 battery.c
 ```
+
+
+The application layer must not include:
+
+```c
+fake_mcu.h
+```
+
+directly in any application source file.
+
+Any solution that introduces a direct dependency between the application layer and the fake MCU layer will be considered a violation of the abstraction requirements.
+
+The goal is to ensure that the application remains independent of the underlying hardware implementation.
 
 ---
 
