@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,--dependency-file=CMakeFiles/app.dir/link.d CMakeFiles/app.dir/main.c.o CMakeFiles/app.dir/sensor.c.o CMakeFiles/app.dir/battery.c.o "CMakeFiles/app.dir/home/devix/workspace/RTOS-and-Embedded-System-Design-Task-/Modules/module01-debug_and_file_management/To-Do/fake_mcu.c.o" -o app

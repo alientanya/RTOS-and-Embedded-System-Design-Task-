@@ -1,0 +1,3 @@
+/home/devix/workspace/RTOS-and-Embedded-System-Design-Task-/Modules/module01-debug_and_file_management/To-Do/daivik/build/CMakeFiles/app.dir
+/home/devix/workspace/RTOS-and-Embedded-System-Design-Task-/Modules/module01-debug_and_file_management/To-Do/daivik/build/CMakeFiles/edit_cache.dir
+/home/devix/workspace/RTOS-and-Embedded-System-Design-Task-/Modules/module01-debug_and_file_management/To-Do/daivik/build/CMakeFiles/rebuild_cache.dir
