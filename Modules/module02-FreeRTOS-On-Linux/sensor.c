@@ -1,11 +1,15 @@
-#include "sensor.h"  
-#include "fake_mcu.h" 
+#include "sensor.h"
+#include <stddef.h>
 
-void Sensor_Init(void) {
-    MCU_Init(); 
+static uint16_t (*hardware_read)(void) = NULL;
+
+void Sensor_Init(uint16_t (*read_func)(void)) {
+    hardware_read = read_func;
 }
+
 int Sensor_Read(void) {
-    int raw_value = MCU_ReadADC();
-    
-     return raw_value;
+    if (hardware_read != NULL) {
+        return hardware_read();
+    }
+    return 0; 
 }

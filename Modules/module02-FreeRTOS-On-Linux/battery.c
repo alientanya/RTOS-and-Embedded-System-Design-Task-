@@ -1,7 +1,15 @@
 #include "battery.h"
-#include "fake_mcu.h" 
-void Battery_Init(void) {
+#include <stddef.h>
+
+static uint16_t (*hardware_read)(void) = NULL;
+
+void Battery_Init(uint16_t (*read_func)(void)) {
+    hardware_read = read_func;
 }
+
 int Battery_ReadVoltage(void) {
-    return MCU_ReadBatteryVoltage();
+    if (hardware_read != NULL) {
+        return hardware_read();
+    }
+    return 0;
 }

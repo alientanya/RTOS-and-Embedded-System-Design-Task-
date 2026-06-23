@@ -16,10 +16,10 @@ add_executable(
     sensor.c
     battery.c
     emergency.c
+    system.c
     fake_mcu.c
     FreeRTOS-Kernel/portable/MemMang/heap_4.c
 )
-
 target_link_libraries(
     app
     freertos_kernel

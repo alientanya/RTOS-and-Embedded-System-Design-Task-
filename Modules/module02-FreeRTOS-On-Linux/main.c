@@ -1,10 +1,10 @@
 #include <stdio.h>
-
 #include "FreeRTOS.h"
 #include "task.h"
 #include "sensor.h"
 #include "battery.h"
 #include "emergency.h"
+#include "system.h"
 
 void EmergencyTask(void *pvParameters);
 void SensorTask(void *pvParameters);
@@ -13,7 +13,7 @@ void BatteryTask(void *pvParameters);
 int main(void) {
     printf("--- Booting FreeRTOS Safety System ---\n");
 
-    Sensor_Init();
+    System_Init();
     Battery_Init();
     xTaskCreate(EmergencyTask, "Emergency", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
     xTaskCreate(SensorTask, "Sensor", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
