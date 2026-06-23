@@ -9,5 +9,6 @@ add_executable(app
     main.c 
     sensor.c 
     battery.c 
+    system.c
     ../fake_mcu.c
 )
