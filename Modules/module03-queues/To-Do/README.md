@@ -133,7 +133,7 @@ For this module, keep the following design goals in mind:
 
 * Use the minimum practical RAM required by your application.
 * Allocate only as much task stack as necessary for each task.
-* Choose an appropriate queue depth based on the application requirements.
+* Choose queue depth of "10" so 10 sensor values can be carried by queue max.
 * Remember that queues store copies of the data being sent.
 
 Throughout this module, consider how design decisions such as task stack size, queue depth, and message size affect the total RAM usage of the system.
