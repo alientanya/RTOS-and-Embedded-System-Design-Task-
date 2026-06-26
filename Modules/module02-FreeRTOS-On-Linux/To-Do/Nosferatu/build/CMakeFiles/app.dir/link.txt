@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/app.dir/main.c.o CMakeFiles/app.dir/sensor.c.o CMakeFiles/app.dir/battery.c.o CMakeFiles/app.dir/emergency.c.o CMakeFiles/app.dir/system.c.o CMakeFiles/app.dir/fake_mcu.c.o -o app  FreeRTOS-Kernel/libfreertos_kernel.a -lpthread 
