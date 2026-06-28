@@ -16,8 +16,7 @@ int main(void) {
     fflush(stdout);
 
     Sensor_Init();
-
-    sensorQueue = xQueueCreate(5, sizeof(SensorData_t));
+    sensorQueue = xQueueCreate(10, sizeof(SensorData_t));
 
     if (sensorQueue != NULL) {
 
