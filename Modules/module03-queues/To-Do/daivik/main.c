@@ -58,11 +58,15 @@ void DisplayTask(void *pvParameters) {
     SensorData_t receivedData;
 
     while(1) {
-        if (xQueueReceive(sensorQueue, &receivedData, portMAX_DELAY) == pdPASS) {
+
+        if(xQueueReceive(sensorQueue, &receivedData, portMAX_DELAY) == pdPASS) {
+ 
+            // FIXED: Now requesting the actual variables defined in sensor.h
+            printf("Received Data - ID: %u, Timestamp: %u\n", receivedData.sensor_id, receivedData.timestamp); 
             
-            printf("Sensor ID: %u\n", receivedData.sensor_id);
-            printf("Timestamp: %u\n\n", receivedData.timestamp);
-            fflush(stdout); 
+            size_t free_heap = xPortGetFreeHeapSize();
+
+            printf("[DIAGNOSTICS] Free Heap: %zu bytes\n\n", free_heap);
         }
     }
 }
