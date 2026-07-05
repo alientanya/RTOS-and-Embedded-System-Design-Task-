@@ -1,8 +1,8 @@
 #include "imu_manager.h"
 #include "imu.h"
+#include "utils.h"
 
-#include <stdio.h>
-#include <unistd.h>
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 typedef enum
 {
@@ -60,16 +60,15 @@ static void ExecuteAction(Action action)
     switch (action)
     {
         case ACTION_PRINT_DATA:
-            printf("Roll: %.1f  Pitch: %.1f  Yaw: %.1f\n",
-                   data.roll, data.pitch, data.yaw);
+            PrintDeviceData(&data);
             break;
 
         case ACTION_PRINT_ERR:
-            printf("IMU operation failed\n");
+            message("IMU operation failed\n");
             break;
 
         case ACTION_WAIT:
-            usleep(100000);
+            waitms(100);
             break;
 
         case ACTION_NONE:
@@ -92,27 +91,27 @@ static void ProcessTransition(imu_status_t event,
         }
     }
 
-    printf("Unhandled IMU event: %d\n", event);
+    message("Unhandled IMU event");
 }
 
 static void HandleInit(void)
 {
-    ProcessTransition(IMU_Init(), t_init, 3);
+    ProcessTransition(IMU_Init(), t_init, ARRAY_SIZE(t_init));
 }
 
 static void HandleRead(void)
 {
-    ProcessTransition(IMU_ReadData(&data), t_read, 5);
+    ProcessTransition(IMU_ReadData(&data), t_read, ARRAY_SIZE(t_read));
 }
 
 static void HandleReset(void)
 {
-    ProcessTransition(IMU_Reset(), t_reset, 3);
+    ProcessTransition(IMU_Reset(), t_reset, ARRAY_SIZE(t_reset));
 }
 
 static void HandleReconnect(void)
 {
-    ProcessTransition(IMU_Init(), t_reconnect, 3);
+    ProcessTransition(IMU_Init(), t_reconnect, ARRAY_SIZE(t_reconnect));
 }
 
 void IMUManager_Init(void)
