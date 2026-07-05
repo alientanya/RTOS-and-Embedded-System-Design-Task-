@@ -35,7 +35,32 @@ Your application must:
 * Correctly handle all return values provided by the driver.
 * Avoid crashing or becoming permanently stuck due to driver failures.
 * Produce clear and readable output that demonstrates the application's current behaviour.
+* Clearly report every state transition, including the current state, received event, executed action, and next state.
+* Use a well-structured state machine implementation that is easy to extend with additional states and events.
+* Handle unexpected or unknown events gracefully without causing undefined behaviour.
 
+---
+
+## State Transition Logging
+
+Every state transition must be logged in the following format:
+
+```text
+[STATE] INIT
+[EVENT] IMU_OK
+[ACTION] NONE
+[NEXT ] READ
+
+[STATE] READ
+[EVENT] IMU_DISCONNECTED
+[ACTION] PRINT_ERROR
+[NEXT ] WAIT_RECONNECT
+
+[STATE] WAIT_RECONNECT
+[EVENT] IMU_OK
+[ACTION] NONE
+[NEXT ] READ
+```
 ---
 
 # Driver Behaviour

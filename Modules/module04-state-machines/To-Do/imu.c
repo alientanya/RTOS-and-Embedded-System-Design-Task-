@@ -5,6 +5,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <time.h>
+
+#define DISCONNECT_AFTER_READS   20
+#define DISCONNECT_DURATION_SEC   3
+
+static time_t disconnect_time = 0;
+
 /*==========================================================
  * Test Configuration
  * Change these values while evaluating submissions.
@@ -19,7 +26,7 @@ typedef enum
     TEST_NO_DATA
 } imu_test_mode_t;
 
-static imu_test_mode_t test_mode = TEST_NORMAL;
+static imu_test_mode_t test_mode =  TEST_DISCONNECT;
 
 /*==========================================================
  * Internal State
@@ -59,22 +66,28 @@ static void UpdateInternalState(void)
         case TEST_NORMAL:
             break;
 
-        case TEST_DISCONNECT:
+    case TEST_DISCONNECT:
 
-            if (read_counter == 20)
+        if ((read_counter != 0) &&
+            (read_counter % DISCONNECT_AFTER_READS == 0) &&
+            (imu_state != IMU_STATE_DISCONNECTED))
+        {
+             imu_state = IMU_STATE_DISCONNECTED;
+             disconnect_time = time(NULL);
+        }
+
+         if (imu_state == IMU_STATE_DISCONNECTED)
             {
-                imu_state = IMU_STATE_DISCONNECTED;
-            }
-
-            if (read_counter == 40)
+                if ((time(NULL) - disconnect_time) >= DISCONNECT_DURATION_SEC)
             {
-                imu_state = IMU_STATE_CONNECTED;
+            imu_state = IMU_STATE_CONNECTED;
+
+            /* Prevent immediately disconnecting again */
+            read_counter++;
             }
+         }
 
-            break;
-
-        default:
-            break;
+    break;
     }
 }
 
@@ -89,6 +102,8 @@ bool IMU_IsConnected(void)
 
 imu_status_t IMU_Init(void)
 {
+    UpdateInternalState();
+
     if (!IMU_IsConnected())
         return IMU_DISCONNECTED;
 
@@ -148,6 +163,8 @@ imu_status_t IMU_ReadData(imu_data_t *data)
 
 imu_status_t IMU_Reset(void)
 {
+    UpdateInternalState();
+
     if (!IMU_IsConnected())
         return IMU_DISCONNECTED;
 
