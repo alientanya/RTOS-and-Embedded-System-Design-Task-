@@ -63,6 +63,12 @@ Every state transition must be logged in the following format:
 ```
 ---
 
+## Important Rules:-
+
+ State-machine source cannot include peripheral specific code like print and sleep
+
+---
+
 # Driver Behaviour
 
 The driver may exhibit one or more of the following behaviours during execution:
