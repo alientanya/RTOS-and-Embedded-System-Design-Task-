@@ -7,10 +7,34 @@
 int main(void)
 {
     IMUManager_Init();
+    message("Device Test\n");
 
     while (1)
     {
         IMUManager_Run();
+
+        switch (IMUManager_GetState())
+        {
+            case STATE_INIT:
+                message("State: INIT\n");
+                break;
+
+            case STATE_READ:
+                message("State: READ\n");
+                break;
+
+            case STATE_RESET:
+                message("State: RESET\n");
+                break;
+
+            case STATE_WAIT_RECONNECT:
+                message("State: WAIT_RECONNECT\n");
+                break;
+
+            default:
+                message("State: UNKNOWN\n");
+                break;
+        }
 
         switch (IMUManager_GetLastAction())
         {

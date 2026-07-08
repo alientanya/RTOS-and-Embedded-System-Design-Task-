@@ -1,24 +1,7 @@
 #include "imu_manager.h"
 #include "imu.h"
-#include "utils.h"
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-
-typedef enum
-{
-    STATE_INIT,
-    STATE_READ,
-    STATE_RESET,
-    STATE_WAIT_RECONNECT
-} AppState;
-
-typedef enum
-{
-    ACTION_NONE,
-    ACTION_PRINT_DATA,
-    ACTION_PRINT_ERR,
-    ACTION_WAIT
-} Action;
 
 typedef struct
 {
@@ -28,6 +11,7 @@ typedef struct
 } Transition;
 
 static AppState state;
+static Action lastAction;
 static imu_data_t data;
 
 static const Transition t_init[] = {
@@ -50,32 +34,10 @@ static const Transition t_reset[] = {
 };
 
 static const Transition t_reconnect[] = {
-    { IMU_OK,           ACTION_NONE, STATE_READ },
-    { IMU_DISCONNECTED, ACTION_WAIT, STATE_WAIT_RECONNECT },
+    { IMU_OK,           ACTION_NONE,      STATE_READ },
+    { IMU_DISCONNECTED, ACTION_WAIT,      STATE_WAIT_RECONNECT },
     { IMU_ERROR,        ACTION_PRINT_ERR, STATE_RESET }
 };
-
-static void ExecuteAction(Action action)
-{
-    switch (action)
-    {
-        case ACTION_PRINT_DATA:
-            PrintDeviceData(&data);
-            break;
-
-        case ACTION_PRINT_ERR:
-            message("IMU operation failed\n");
-            break;
-
-        case ACTION_WAIT:
-            waitms(100);
-            break;
-
-        case ACTION_NONE:
-        default:
-            break;
-    }
-}
 
 static void ProcessTransition(imu_status_t event,
                               const Transition *table,
@@ -85,13 +47,13 @@ static void ProcessTransition(imu_status_t event,
     {
         if (table[i].event == event)
         {
-            ExecuteAction(table[i].action);
+            lastAction = table[i].action;
             state = table[i].nextState;
             return;
         }
     }
 
-    message("Unhandled IMU event");
+    lastAction = ACTION_NONE;
 }
 
 static void HandleInit(void)
@@ -117,6 +79,7 @@ static void HandleReconnect(void)
 void IMUManager_Init(void)
 {
     state = STATE_INIT;
+    lastAction = ACTION_NONE;
 }
 
 void IMUManager_Run(void)
@@ -140,6 +103,22 @@ void IMUManager_Run(void)
             break;
 
         default:
+            lastAction = ACTION_NONE;
             break;
     }
+}
+
+AppState IMUManager_GetState(void)
+{
+    return state;
+}
+
+Action IMUManager_GetLastAction(void)
+{
+    return lastAction;
+}
+
+const imu_data_t *IMUManager_GetData(void)
+{
+    return &data;
 }
