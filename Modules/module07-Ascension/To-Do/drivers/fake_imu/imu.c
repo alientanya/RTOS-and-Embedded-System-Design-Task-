@@ -1,22 +1,15 @@
 #include "imu.h"
+#include "Platform.h"
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-
-
 #include <time.h>
 
 #define DISCONNECT_AFTER_READS   20
 #define DISCONNECT_DURATION_SEC   3
 
-static time_t disconnect_time = 0;
-
 /*==========================================================
  * Test Configuration
- * Change these values while evaluating submissions.
  *=========================================================*/
 
 typedef enum
@@ -28,7 +21,7 @@ typedef enum
     TEST_NO_DATA
 } imu_test_mode_t;
 
-static imu_test_mode_t test_mode =  TEST_DISCONNECT;
+static imu_test_mode_t test_mode = TEST_DISCONNECT;
 
 /*==========================================================
  * Internal State
@@ -49,6 +42,7 @@ static bool initialized = false;
 static imu_data_t latest_data;
 
 static uint32_t read_counter = 0;
+static time_t disconnect_time = 0;
 
 /*==========================================================
  * Private Functions
@@ -56,9 +50,9 @@ static uint32_t read_counter = 0;
 
 static void GenerateFakeData(void)
 {
-    latest_data.roll += 0.5f;
+    latest_data.roll  += 0.5f;
     latest_data.pitch += 0.2f;
-    latest_data.yaw += 1.0f;
+    latest_data.yaw   += 1.0f;
 }
 
 static void UpdateInternalState(void)
@@ -68,28 +62,31 @@ static void UpdateInternalState(void)
         case TEST_NORMAL:
             break;
 
-    case TEST_DISCONNECT:
+        case TEST_DISCONNECT:
 
-        if ((read_counter != 0) &&
-            (read_counter % DISCONNECT_AFTER_READS == 0) &&
-            (imu_state != IMU_STATE_DISCONNECTED))
-        {
-             imu_state = IMU_STATE_DISCONNECTED;
-             disconnect_time = time(NULL);
-        }
+            if ((read_counter != 0U) &&
+                ((read_counter % DISCONNECT_AFTER_READS) == 0U) &&
+                (imu_state != IMU_STATE_DISCONNECTED))
+            {
+                imu_state = IMU_STATE_DISCONNECTED;
+                disconnect_time = time(NULL);
+            }
 
-         if (imu_state == IMU_STATE_DISCONNECTED)
+            if (imu_state == IMU_STATE_DISCONNECTED)
             {
                 if ((time(NULL) - disconnect_time) >= DISCONNECT_DURATION_SEC)
-            {
-            imu_state = IMU_STATE_CONNECTED;
+                {
+                    imu_state = IMU_STATE_CONNECTED;
 
-            /* Prevent immediately disconnecting again */
-            read_counter++;
+                    /* Prevent immediate disconnection after reconnect */
+                    read_counter++;
+                }
             }
-         }
 
-    break;
+            break;
+
+        default:
+            break;
     }
 }
 
@@ -107,14 +104,18 @@ imu_status_t IMU_Init(void)
     UpdateInternalState();
 
     if (!IMU_IsConnected())
+    {
         return IMU_DISCONNECTED;
+    }
 
     if (initialized)
+    {
         return IMU_OK;
+    }
 
     imu_state = IMU_STATE_INITIALIZING;
 
-    usleep(100000);
+    Platform_DelayMs(100);
 
     if (test_mode == TEST_INIT_FAIL)
     {
@@ -133,13 +134,19 @@ imu_status_t IMU_ReadData(imu_data_t *data)
     UpdateInternalState();
 
     if (!IMU_IsConnected())
+    {
         return IMU_DISCONNECTED;
+    }
 
     if (!initialized)
+    {
         return IMU_NOT_INITIALIZED;
+    }
 
     if (imu_state == IMU_STATE_ERROR)
+    {
         return IMU_ERROR;
+    }
 
     if (test_mode == TEST_READ_FAIL)
     {
@@ -152,7 +159,7 @@ imu_status_t IMU_ReadData(imu_data_t *data)
         return IMU_NO_NEW_DATA;
     }
 
-    usleep(5000);
+    Platform_DelayMs(5);
 
     GenerateFakeData();
 
@@ -168,10 +175,13 @@ imu_status_t IMU_Reset(void)
     UpdateInternalState();
 
     if (!IMU_IsConnected())
+    {
         return IMU_DISCONNECTED;
+    }
 
     initialized = false;
     imu_state = IMU_STATE_CONNECTED;
+    disconnect_time = 0;
 
     return IMU_Init();
 }
