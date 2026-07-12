@@ -19,8 +19,33 @@ int main(void)
 
     sensorQueue = xQueueCreate(10, sizeof(SensorData_t));
 
-    xTaskCreate(SensorTask, "SensorTask", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
-    xTaskCreate(DisplayTask, "DisplayTask", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
+    if (sensorQueue == NULL)
+    {
+        printf("Failed to create queue!\n");
+        while (1);
+    }
+
+    if (xTaskCreate(SensorTask,
+                    "SensorTask",
+                    configMINIMAL_STACK_SIZE,
+                    NULL,
+                    2,
+                    NULL) != pdPASS)
+    {
+        printf("Failed to create SensorTask!\n");
+        while (1);
+    }
+
+    if (xTaskCreate(DisplayTask,
+                    "DisplayTask",
+                    configMINIMAL_STACK_SIZE,
+                    NULL,
+                    1,
+                    NULL) != pdPASS)
+    {
+        printf("Failed to create DisplayTask!\n");
+        while (1);
+    }
 
     printf("Starting Scheduler...\n");
     vTaskStartScheduler();

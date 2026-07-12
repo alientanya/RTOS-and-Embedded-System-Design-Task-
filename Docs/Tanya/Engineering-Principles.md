@@ -1,3 +1,5 @@
 -> Use utility macros or named constants instead of hardcoded values to make the code automatically adapt to changes.
-
 -> Generalize solutions whenever possible so they can be adapted to future projects with minimal changes.
+-> Never assume a driver call succeeds and always check return values.
+-> Keep hardware-independent logic portable by isolating platform-specific code.
+-> Ensure every possible event is handled in every relevant state in state machines.
